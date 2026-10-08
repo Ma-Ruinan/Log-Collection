@@ -4,10 +4,17 @@
 
 ## 安装与前置条件
 
-1. 下载或克隆整个仓库，保留 `mobilework-log-collection/` 下的 `SKILL.md`、`scripts/`、`references/` 和 `agents/`。不要只复制 `SKILL.md`。
-2. 将该文件夹放入所用 Agent 工具的 Skill 目录，或按该工具文档导入本地 Skill。Codex 的用户级目录通常是 `~/.codex/skills/`。WorkBuddy 等其他工具请依照其当前版本的安装说明；确认其能读取 `SKILL.md` 并运行本地 Python。
-3. 准备 Python 3.10+、可读的 MobileWork SQLite 会话数据库、测试数据集目录和可写的新输出目录。多数据集模式要求每个待收集题目目录有 `问题描述.txt` 和 `rubric.md`。脚本仅用 Python 标准库。数据库常见于用户目录下 `.mobilework/xdg/data/opencode/opencode.db`，实际位置请先检查。
-4. 给待收集项目使用可核对的根会话标题，例如 `W1-236b-0928`；独立第二次运行可用 `W1-236b-0928-2`。同一会话内输入 `继续` 不构成第二次运行。
+可以让 Codex 或 WorkBuddy 帮助安装，但要确认它已取得并识别整个 Skill 文件夹，而不只是读过 GitHub 页面。
+
+- Codex：在对话中发送 `请用 $skill-installer 安装 https://github.com/Ma-Ruinan/Log-Collection/tree/main/mobilework-log-collection`。如已安装同名 Skill，先检查现有版本与更新方式，不要直接覆盖。安装后开启新对话并确认 Skill 可用。
+- WorkBuddy：提供同一[Skill 文件夹链接](https://github.com/Ma-Ruinan/Log-Collection/tree/main/mobilework-log-collection)，请它先下载完整文件夹，再按当前产品支持的技能创建或导入流程安装。若通过开放平台上传 ZIP，需在上传副本的 `SKILL.md` frontmatter 中补充 `description_zh`、`description_en`、`version`、`author`，并将完整的 `mobilework-log-collection/` 文件夹打包；仓库原件不加这些字段，以保持 Codex 校验通过。具体字段见 [WorkBuddy 技能文档](https://open.workbuddy.cn/docs/skill)。WorkBuddy 是否支持直接从 GitHub 链接安装，需以实际界面或版本为准，不能只凭链接就认定安装成功。
+- 手动安装：下载或克隆仓库，将完整的 `mobilework-log-collection/` 文件夹放入工具指定的 Skill 目录并重新加载。Codex 的用户级目录通常是 `~/.codex/skills/`；其他工具以其安装说明为准。不要只复制 `SKILL.md`。
+
+安装前还应确认：
+
+1. Agent 能读取 `SKILL.md`、`scripts/`、`references/`，并可在本机运行 Python 脚本。
+2. 准备 Python 3.10+、可读的 MobileWork SQLite 会话数据库、测试数据集目录和可写的新输出目录。多数据集模式要求每个待收集题目目录有 `问题描述.txt` 和 `rubric.md`。脚本仅用 Python 标准库。数据库常见于用户目录下 `.mobilework/xdg/data/opencode/opencode.db`，实际位置请先检查。
+3. 给待收集项目使用可核对的根会话标题，例如 `W1-236b-0928`；独立第二次运行可用 `W1-236b-0928-2`。同一会话内输入 `继续` 不构成第二次运行。
 
 日志可能包含助手文本、工具参数和结果，可能涉及敏感信息。取得使用授权后在可信环境运行，公开分享前自行脱敏。不要将真实数据库、配置或收集结果提交到本仓库。
 
@@ -18,6 +25,14 @@
 > 请使用 mobilework-log-collection Skill 收集这批 MobileWork 测试日志。先只检查测试题目录、项目标题和全部运行次数的对应关系，列出缺失或歧义，等我确认后再收集。保持数据集、维度和题目原文件夹名称，独立运行分别放在第1次、第2次目录。完成后核验并告诉我完整输出路径、题数、运行次数及异常。数据库位置、数据集目录、命名规则和输出目录如下：……
 
 Agent 应先展示只读检查结果；确认后才收集。重复标题、缺失项目或题数不符时，应先核对。脚本不会覆盖非空输出目录，核验失败不能报告完成。
+
+例如，已核对的一个项目位于 `C:\Users\mrn\MobileWork\2026-09-25-15-38-45`，其根会话标题是 `1.1-glm5.2-normal-0924`。这批项目若都遵循 `<题号>-glm5.2-normal-0924`，就把 `glm5.2-normal-0924` 作为本次配置中的 `session_suffix`，通过题号与测试题目录映射查找全部项目。常规能力数据集的 `W1_...` 题目目录对应题号 `1.1`；项目路径则从会话数据库核对，不能按时间戳目录名猜测。若另有 `1.1-glm5.2-normal-0924-2`，需把两次独立运行都保存。
+
+这一批可这样请求：
+
+> 请用 mobilework-log-collection 收集常规能力测试数据集的 MobileWork 日志。示例项目路径为 `C:\Users\mrn\MobileWork\2026-09-25-15-38-45`，根会话标题为 `1.1-glm5.2-normal-0924`；其余项目按 `<题号>-glm5.2-normal-0924` 命名，独立重跑可能附加 `-2`。先根据测试题目录和数据库列出匹配项目、运行次数及缺失或歧义，不要收集；我确认后再归档并核验。测试数据集根目录是 `<填写实际路径>`，待收集维度是 `<填写目录名>`，输出目录是 `<填写新目录>`。
+
+`glm5.2-normal-0924` 和上述路径只是本批示例，不是 Skill 的固定规则。其他批次须替换成自己的命名后缀、目录和收集范围。
 
 ## 命令行
 
