@@ -1,0 +1,12 @@
+# Local run inputs and evidence
+*.db
+*.db-*
+*.sqlite*
+*.log
+*.jsonl
+*.csv
+*.config.json
+__pycache__/
+.venv/
+output/
+logs/

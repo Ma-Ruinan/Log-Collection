@@ -1,0 +1,16 @@
+{
+  "database": "C:/Users/USER/.mobilework/xdg/data/opencode/opencode.db",
+  "dataset": "D:/benchmark",
+  "dataset_root": "D:/benchmark",
+  "output": "D:/new-mobilework-logs",
+  "versions": ["example"],
+  "datasets": [
+    {
+      "directory": "常规能力测试数据集",
+      "dimensions": ["维度1_信息检索与浏览"],
+      "mapping": "regular",
+      "session_suffix": "236b-0928",
+      "expected_task_count": 5
+    }
+  ]
+}

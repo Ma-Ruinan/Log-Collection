@@ -1,0 +1,4 @@
+interface:
+  display_name: "MobileWork 日志收集"
+  short_description: "按统一标准提取、整理并校验 MobileWork 运行日志"
+  default_prompt: "使用 $mobilework-log-collection 收集指定版本的 MobileWork 测试日志。"
